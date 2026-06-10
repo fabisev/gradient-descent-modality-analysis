@@ -1,0 +1,16 @@
+﻿participant,condition,A_core,B_compute,C_learning_rate,D_application,E_process,F_variants,total
+P01,classic,21,4,13,4,12,7,61
+P02,classic,21,19,10,16,8,10,84
+P03,classic,22,4,12,9,10,7,64
+P04,classic,12,17,12,8,8,7,64
+P05,classic,24,4,11,10,10,8,67
+P06,classic,17,12,9,11,12,3,64
+P07,classic,21,6,11,10,8,8,64
+P08,multiple,24,19,13,15,12,8,91
+P09,multiple,24,22,12,16,12,9,95
+P10,multiple,22,22,16,14,12,9,95
+P11,multiple,20,21,11,14,12,8,86
+P12,multiple,20,17,8,12,10,7,74
+P13,multiple,20,18,9,16,8,0,71
+P14,multiple,18,8,15,14,8,2,65
+P15,multiple,20,22,15,16,12,3,88
