@@ -4,7 +4,10 @@ from scipy.stats import mannwhitneyu
 
 def cliffs_delta(classic, multiple):
     """
+    Compute Cliff's delta.
+
     Positive delta means scores are higher in the multiple-modality condition.
+    Negative delta means scores are higher in the classic textbook-style condition.
     """
     greater = 0
     lower = 0
@@ -20,6 +23,10 @@ def cliffs_delta(classic, multiple):
 
 
 def analyse_measure(df, measure):
+    """
+    Run a Mann--Whitney U test and compute Cliff's delta
+    for one measure.
+    """
     classic = df[df["condition"] == "classic"][measure].dropna()
     multiple = df[df["condition"] == "multiple"][measure].dropna()
 
@@ -36,23 +43,61 @@ def analyse_measure(df, measure):
         "n_classic": len(classic),
         "n_multiple": len(multiple),
         "classic_mean": classic.mean(),
+        "classic_median": classic.median(),
+        "classic_min": classic.min(),
+        "classic_max": classic.max(),
         "multiple_mean": multiple.mean(),
+        "multiple_median": multiple.median(),
+        "multiple_min": multiple.min(),
+        "multiple_max": multiple.max(),
         "U": u_stat,
         "p": p_value,
         "cliffs_delta": delta
     }
 
 
-def main():
-    df = pd.read_csv("data/anonymised_scores.csv")
-
-    # Clean column names just in case there are spaces
+def clean_dataframe(df):
+    """
+    Clean column names and condition labels.
+    """
     df.columns = df.columns.str.strip()
 
-    # Clean condition values just in case there are spaces/capital letters
-    df["condition"] = df["condition"].str.strip().str.lower()
+    df["condition"] = (
+        df["condition"]
+        .astype(str)
+        .str.strip()
+        .str.lower()
+    )
 
-    measures = [
+    return df
+
+
+def run_analysis(input_file, measures, output_file, title):
+    """
+    Read one CSV file, analyse all selected measures,
+    save the results, and print them.
+    """
+    df = pd.read_csv(input_file)
+    df = clean_dataframe(df)
+
+    results = [
+        analyse_measure(df, measure)
+        for measure in measures
+    ]
+
+    results_df = pd.DataFrame(results)
+
+    results_df.to_csv(output_file, index=False)
+
+    print(f"\n{title}")
+    print(results_df.round(3))
+
+
+def main():
+    # -------------------------
+    # Post-test score analysis
+    # -------------------------
+    posttest_measures = [
         "total",
         "A_core",
         "B_compute",
@@ -62,12 +107,31 @@ def main():
         "F_variants"
     ]
 
-    results = [analyse_measure(df, measure) for measure in measures]
-    results_df = pd.DataFrame(results)
+    run_analysis(
+        input_file="data/anonymised_scores.csv",
+        measures=posttest_measures,
+        output_file="results/posttest_statistical_results.csv",
+        title="Post-test results"
+    )
 
-    results_df.to_csv("results/statistical_results.csv", index=False)
+    # -------------------------
+    # Survey construct analysis
+    # -------------------------
+    survey_measures = [
+        "confidence",
+        "clarity",
+        "cognitive_load",
+        "mental_effort",
+        "usefulness",
+        "engagement"
+    ]
 
-    print(results_df.round(3))
+    run_analysis(
+        input_file="data/anonymised_survey_scores.csv",
+        measures=survey_measures,
+        output_file="results/survey_statistical_results.csv",
+        title="Survey results"
+    )
 
 
 if __name__ == "__main__":
